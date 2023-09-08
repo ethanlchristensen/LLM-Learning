@@ -1,16 +1,13 @@
 import os
-from typing import Any, List, Tuple
-import streamlit as st
 import time
-from langchain.vectorstores import Chroma
-from langchain.embeddings import OpenAIEmbeddings
+from typing import Tuple
+import streamlit as st
 from dotenv import load_dotenv
 from datetime import datetime
 from langchain.chat_models import ChatOpenAI
-from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory
+from langchain.memory import ConversationBufferWindowMemory
 from langchain.memory.chat_message_histories import StreamlitChatMessageHistory
-from langchain.callbacks.base import BaseCallbackHandler
-from langchain.chains import ConversationalRetrievalChain, ConversationChain
+from langchain.chains import ConversationChain
 
 def log_it(message: str) -> None: print(f"[{datetime.now()}]: {message}")
 
@@ -30,37 +27,6 @@ def get_auth() -> Tuple[str]:
     pswd = os.getenv("AUTH_PASS")
     return (user, pswd)
 
-
-class StreamHandler(BaseCallbackHandler):
-    def __init__(self, container: st.delta_generator.DeltaGenerator, inital_text: str = ""):
-        self.container = container
-        self.text = inital_text
-        self.run_id_ignore_token = None
-    
-    def on_llm_start(self, serialized: dict, prompts: List[str], **kwargs) -> Any:
-        if prompts[0].startswith("Human: "):
-            self.run_id_ignore_token = kwargs.get("run_id")
-        
-    def on_llm_new_token(self, token: str, **kwargs) -> Any:
-        if self.run_id_ignore_token == kwargs.get("run_id"):
-            return
-        self.text += token
-        self.container.markdown(self.text)
-    
-class PrintRetreival(BaseCallbackHandler):
-    def __init__(self, container: st.delta_generator.DeltaGenerator):
-        self.status = container.status("**Retrieval**")
-    
-    def on_retriever_start(self, serialized: dict, query: str, **kwargs):
-        self.status.write(f"**Question:** {query}")
-        self.status.update(label=f"**Retrieval:** {query}")
-
-    def on_retriever_end(self, documents, **kwargs):
-        for idx, doc in enumerate(documents):
-            source = os.path.basename(doc.metadata["source"])
-            self.status.write(f"**Documents {idx} from {source}**")
-            self.status.markdown(doc.page_content)
-        self.status.update(state="complete")
 
 auth = get_auth()
 
