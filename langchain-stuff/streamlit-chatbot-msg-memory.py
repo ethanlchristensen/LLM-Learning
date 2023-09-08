@@ -124,6 +124,7 @@ if user_query := st.chat_input(placeholder="Enter message", disabled=not st.sess
         with st.spinner("Thinking . . ."):
             message_placeholder = st.empty()
             full_response = ""
+            # chain getting the repsonse here
             response = chain.run(user_query)
 
         # build the response and write to the screen one word at a time
