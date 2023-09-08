@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "langchain-stuff"
+version = "0.1.0"
+description = "Place for all things Langchain learning"
+authors = ["Ethan Christensen <ethanlchristensen@outlook.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "langchain_stuff"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+python-dotenv = "^1.0.0"
+langchain = "^0.0.285"
+openai = "^0.27.8"
+streamlit = "^1.26.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
