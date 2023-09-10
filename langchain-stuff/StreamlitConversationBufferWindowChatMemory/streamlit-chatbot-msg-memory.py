@@ -27,7 +27,6 @@ def load_env() -> None:
         log_it(f"loaded .env: {load_dotenv()}")
         st.session_state["env"] = True
 
-
 def update_state(update: dict) -> None:
     """
     Function to update the streamlit session_state dict
@@ -46,6 +45,7 @@ def get_auth() -> Tuple[str]:
     pswd = os.getenv("AUTH_PASS")
     return (user, pswd)
 
+load_env()
 
 # create the llm instance
 llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
@@ -54,7 +54,7 @@ llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
 auth = get_auth()
 
 # create an instance of the chat history
-msgs = StreamlitChatMessageHistory()
+msgs = StreamlitChatMessageHistory() # <- this is how we can keep track of message history despite
 
 # create memory for the langchain conversation chain
 memory = ConversationBufferWindowMemory(
@@ -72,6 +72,12 @@ chain = ConversationChain(
 )
 
 # initialize the auth_expand_flag and rr_check
+# auth_expand_flag == True, then we expand the login expander
+#                    False, then it stays collaped (after a login)
+# rr_check == False, then we haven't reloaded the page manually
+#              True, then we won't reload the page manually
+# we only reload the page manually after logging in to force the
+# auth expander to collapse (so the changes refresh)
 if st.session_state.get("auth_expand_flag") is None:
     update_state({"auth_expand_flag":True})
 if st.session_state.get("rr_check") is None:
